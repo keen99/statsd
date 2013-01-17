@@ -27,7 +27,7 @@ function loadBackend(config, name) {
   var backendmod = require(name);
 
   if (config.debug) {
-    l.log("Loading backend: " + name, 'debug');
+    l.log("Loading backend: " + name, 'DEBUG');
   }
 
   var ret = backendmod.init(startup_time, config, backendEvents);
@@ -69,6 +69,7 @@ function flushMetrics() {
 
     // Clear the counters
     conf.deleteCounters = conf.deleteCounters || false;
+<<<<<<< HEAD
 
     // handle the case where these vars are not setup - for this patch to work w/o requiring
     // the statsPrefix patch 
@@ -80,24 +81,8 @@ function flushMetrics() {
     packets_received = prefixStats + ".packets_received";
 
     for (key in metrics.counters) {
-      if (conf.deleteCounters) {
-      	if (key == packets_received || key == bad_lines_seen) {
-        //  if (conf.debug) {
-        //    l.log("resetting stats key: " + key);
-        //  }
-          metrics.counters[key] = 0;
-        } else {
-         //if (conf.debug) {
-         //  l.log("deleting key: " + key);
-         //}
-      	 delete(metrics.counters[key]);	
-        }
-      } else {
-        metrics.counters[key] = 0;
-      }
-    }
-
-    // Clear the timers
+=======
+    for (var key in metrics.counters) {
     conf.deleteTimers = conf.deleteTimers || false;
     for (key in metrics.timers) {
       if (conf.deleteTimers) {
@@ -123,6 +108,15 @@ function flushMetrics() {
      for (key in metrics.gauges) {
         delete(metrics.gauges[key]);
      }
+=======
+    for (var key in metrics.timers) {
+      metrics.timers[key] = [];
+    }
+
+    // Clear the sets
+    for (var key in metrics.sets) {
+      metrics.sets[key] = new set.Set();
+>>>>>>> p/debugupdates
     }
   });
 
@@ -159,7 +153,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       l.log("\nCounters:\n" + util.inspect(counters) +
                "\nTimers:\n" + util.inspect(timers) +
                "\nSets:\n" + util.inspect(sets) +
-               "\nGauges:\n" + util.inspect(gauges), 'debug');
+               "\nGauges:\n" + util.inspect(gauges), 'DEBUG');
     }, config.debugInterval || 10000);
   }
 
@@ -184,7 +178,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
       counters[packets_received]++;
       var metrics = msg.toString().split("\n");
 
-      for (midx in metrics) {
+      for (var midx in metrics) {
         if (config.dumpMessages) {
           l.log(metrics[midx].toString());
         }
@@ -284,8 +278,8 @@ config.configFile(process.argv[2], function (config, oldConfig) {
             };
 
             // Loop through the base stats
-            for (group in stats) {
-              for (metric in stats[group]) {
+            for (var group in stats) {
+              for (var metric in stats[group]) {
                 stat_writer(group, metric, stats[group][metric]);
               }
             }
@@ -322,7 +316,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
             break;
 
           case "delcounters":
-            for (index in cmdline) {
+            for (var index in cmdline) {
               delete counters[cmdline[index]];
               stream.write("deleted: " + cmdline[index] + "\n");
             }
@@ -330,7 +324,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
             break;
 
           case "deltimers":
-            for (index in cmdline) {
+            for (var index in cmdline) {
               delete timers[cmdline[index]];
               stream.write("deleted: " + cmdline[index] + "\n");
             }
@@ -338,7 +332,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
             break;
 
           case "delgauges":
-            for (index in cmdline) {
+            for (var index in cmdline) {
               delete gauges[cmdline[index]];
               stream.write("deleted: " + cmdline[index] + "\n");
             }
@@ -390,7 +384,7 @@ config.configFile(process.argv[2], function (config, oldConfig) {
         var key;
         var sortedKeys = [];
 
-        for (key in keyCounter) {
+        for (var key in keyCounter) {
           sortedKeys.push([key, keyCounter[key]]);
         }
 
