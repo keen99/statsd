@@ -67,11 +67,24 @@ function flushMetrics() {
       conf.deleteGauges = conf.deleteGauges !== undefined ? conf.deleteGauges : true;
     }
 
+    // handle the case where these vars are not setup - for this patch to work w/o requiring
+    // the statsPrefix patch 
+    var prefixStats;
+    prefixStats       = conf.prefixStats;
+    prefixStats     = prefixStats !== undefined ? prefixStats : "statsd";
+    //setup the names for the stats stored in counters{}
+    bad_lines_seen = prefixStats + ".bad_lines_seen";
+    packets_received = prefixStats + ".packets_received";
+    
     // Clear the counters
     conf.deleteCounters = conf.deleteCounters || false;
     for (var key in metrics.counters) {
       if (conf.deleteCounters) {
-        delete(metrics.counters[key]);
+      	if (key == packets_received || key == bad_lines_seen) {
+          metrics.counters[key] = 0;
+        } else {
+      	 delete(metrics.counters[key]);	
+        }
       } else {
         metrics.counters[key] = 0;
       }
@@ -103,7 +116,6 @@ function flushMetrics() {
      for (var key in metrics.gauges) {
         delete(metrics.gauges[key]);
      }
->>>>>>> p/deleteidlestats
     }
   });
 
